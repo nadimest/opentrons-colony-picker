@@ -3,19 +3,50 @@ import PySimpleGUI as sg
 sg.theme('Black')
 
 label_en={
-    'record_btn':'Record',
+    'record_btn':'Camera',
     'stop_btn': 'Stop',
-    'exit_btn': 'Exit'
+    'exit_btn': 'Exit',
+    'jogger_y+_btn': 'Y+',
+    'jogger_y-_btn': 'Y-',
+    'jogger_x-_btn': 'X-',
+    'jogger_x+_btn': 'X+',
+    'jogger_z+_btn': 'Z+',
+    'jogger_z-_btn': 'Z-'
 }
 
 winLabel=label_en
 
-# define the window layout
+camera_control = [sg.Column( [[sg.Button(winLabel['record_btn'], size=(10, 1), font='Helvetica 14'),
+                             sg.Button(winLabel['stop_btn'], size=(10, 1), font='Any 14'),
+                             sg.Button(winLabel['exit_btn'], size=(10, 1), font='Helvetica 14') ]],
+                            justification="right",
+                            element_justification="center")
+                  ]
+
+step_radio_buttons =[sg.Radio('0.1', "STEP"),
+                     sg.Radio('1', "STEP", default=True),
+                     sg.Radio('10', "STEP"),
+                     sg.Radio('50', "STEP")
+                     ]
+
+jogger_layout = [sg.Column([[sg.Text('Step [mm]',justification='left')],
+                            step_radio_buttons,
+                            [sg.Button(winLabel['jogger_y+_btn'], size=(4, 1), font='Any 12') ],
+                            [sg.Button(winLabel['jogger_x-_btn'], size=(4, 1), font='Any 12'), sg.Button(winLabel['jogger_x+_btn'], size=(4, 1), font='Any 12')],
+                            [sg.Button(winLabel['jogger_y-_btn'], size=(4, 1), font='Any 12')],
+                            [sg.Text('')],
+                            [sg.Button(winLabel['jogger_z+_btn'], size=(4, 1), font='Any 12')],
+                            [sg.Button(winLabel['jogger_z-_btn'], size=(4, 1), font='Any 12')]
+                            ],
+                           justification='left',
+                           element_justification ='center')
+                 ]
+
 layout = [[sg.Text('Colony Picker', size=(40, 1), justification='center', font='Helvetica 20')],
-          [sg.Image(filename='', key='image')],
-          [sg.Button(winLabel['record_btn'], size=(10, 1), font='Helvetica 14'),
-           sg.Button(winLabel['stop_btn'], size=(10, 1), font='Any 14'),
-           sg.Button(winLabel['exit_btn'], size=(10, 1), font='Helvetica 14'), ]]
+          camera_control,
+          jogger_layout + [sg.Image(filename='', key='image')]
+          ]
+          #[sg.TabGroup( [sg.Tab('Jogger',tab1_layout)],[sg.Tab('Calibration',tab2_layout)])]]
 
 # create the window and show it without the plot
 

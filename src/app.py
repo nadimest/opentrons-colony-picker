@@ -1,7 +1,6 @@
 from views.mainWindow import window
 import imgTools.videoHandler as videoHandler
 
-
 def main():
 
     camera=None
