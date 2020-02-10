@@ -1,10 +1,12 @@
 from views.mainWindow import window
 import imgTools.videoHandler as videoHandler
+import calib.locations as locations
 
 def main():
 
     camera=None
     recording=False
+    colonies=locations.coloniesCache()
 
     while True:
         state = window.readState()
@@ -20,10 +22,17 @@ def main():
             if camera:
                 camera.stop()
             recording = False
-            window.updateImage(videoHandler.blankImage(100,1,0))
+            window.updateImage(videoHandler.blankImage(640,480,0))
+
+        elif state['graph_click_release']:
+            point= window.getGraphPixel()
+            #print(x,y)
+            colonies.add(point)
 
         if recording:
             img = camera.read()
+            img= videoHandler.overlayCircles(img,colonies.elements)
+
             window.updateImage(videoHandler.encodePng(img))
 
 main()

@@ -11,10 +11,13 @@ label_en={
     'jogger_x-_btn': 'X-',
     'jogger_x+_btn': 'X+',
     'jogger_z+_btn': 'Z+',
-    'jogger_z-_btn': 'Z-'
+    'jogger_z-_btn': 'Z-',
+    'graph_click_release': 'graph+UP'
 }
 
 winLabel=label_en
+
+''' Windows layout definition using PySimpleGUI '''
 
 camera_control = [sg.Column( [[sg.Button(winLabel['record_btn'], size=(10, 1), font='Helvetica 14'),
                              sg.Button(winLabel['stop_btn'], size=(10, 1), font='Any 14'),
@@ -42,13 +45,21 @@ jogger_layout = [sg.Column([[sg.Text('Step [mm]',justification='left')],
                            element_justification ='center')
                  ]
 
+image_holder= [sg.Graph( canvas_size=(640, 480),
+                         graph_bottom_left=(0, 480),
+                         graph_top_right=(640, 0),
+                         key="graph",
+                         change_submits=True,
+                         drag_submits=True
+        )]
+
 layout = [[sg.Text('Colony Picker', size=(40, 1), justification='center', font='Helvetica 20')],
           camera_control,
-          jogger_layout + [sg.Image(filename='', key='image')]
+          jogger_layout +  image_holder #[sg.Image(filename='', key='image')]
           ]
           #[sg.TabGroup( [sg.Tab('Jogger',tab1_layout)],[sg.Tab('Calibration',tab2_layout)])]]
 
-# create the window and show it without the plot
+''' Windows class handling loops and events to detach PySimpleGUI specific methods from the main app '''
 
 class mainWindow():
 
@@ -61,8 +72,11 @@ class mainWindow():
         self.state = {
             'record_btn': 0,
             'stop_btn': 0,
-            'exit_btn': 0
+            'exit_btn': 0,
+            'graph_click_release': 0
         }
+
+        self.clickPos = (0,0)
 
     def readState(self):
         event, values = self.win.read(timeout=20)
@@ -70,12 +84,23 @@ class mainWindow():
         for key in self.state:
             self.state[key]= (self.element[key] == event)
 
+        self.handleValues(values)
+
+        if event!="__TIMEOUT__":
+            print(event,values)
 
         return self.state
 
+    def handleValues(self,values):
+
+        self.clickPos= values['graph']
+
+    def getGraphPixel(self):
+        return self.clickPos[0],self.clickPos[1]
+
     def updateImage(self,img=None):
 
-        self.win['image'].update(data=img)
+        self.win.Element('graph').DrawImage(data=img,location=(0,0))
 
 window=mainWindow(layout)
 
