@@ -26,8 +26,11 @@ def main():
 
         elif state['graph_click_release']:
             point= window.getGraphPixel()
-            #print(x,y)
-            colonies.add(point)
+            overlap_distance=10
+            if recording:
+                point_overlapped= colonies.removeNearPoint(point,overlap_distance)
+                if not point_overlapped:
+                    colonies.add(point)
 
         if recording:
             img = camera.read()

@@ -26,15 +26,15 @@ def blankImage(width,height,color):
 def overlayCircles(img,circlesList):
     overlay=deepcopy(img)
     color=(0,255,255)
-    radius=5
-    fontScale=0.8
+    radius=4
+    fontScale=0.5
     fontFace=cv2.FONT_HERSHEY_PLAIN
-    offset=(10,-10)
+    offset=3
 
 
     for i in range(len(circlesList)):
         point=circlesList[i]
-        textPoint=(point[0]+5,point[1]-5)
+        textPoint=(point[0]+offset,point[1]-offset)
         cv2.circle(overlay,point, radius, color)
         cv2.putText(overlay, str(i),textPoint , fontFace, fontScale, color)
 
