@@ -4,6 +4,7 @@ sg.theme('Black')
 
 label_en={
     'record_btn':'Camera',
+    'picture_btn': 'Take Picture',
     'stop_btn': 'Stop',
     'exit_btn': 'Exit',
     'jogger_y+_btn': 'Y+',
@@ -20,6 +21,7 @@ winLabel=label_en
 ''' Windows layout definition using PySimpleGUI '''
 
 camera_control = [sg.Column( [[sg.Button(winLabel['record_btn'], size=(10, 1), font='Helvetica 14'),
+                             sg.Button(winLabel['picture_btn'], size=(10, 1), font='Any 14'),
                              sg.Button(winLabel['stop_btn'], size=(10, 1), font='Any 14'),
                              sg.Button(winLabel['exit_btn'], size=(10, 1), font='Helvetica 14') ]],
                             justification="right",
@@ -45,9 +47,9 @@ jogger_layout = [sg.Column([[sg.Text('Step [mm]',justification='left')],
                            element_justification ='center')
                  ]
 
-image_holder= [sg.Graph( canvas_size=(640, 480),
-                         graph_bottom_left=(0, 480),
-                         graph_top_right=(640, 0),
+image_holder= [sg.Graph( canvas_size=(800, 600),
+                         graph_bottom_left=(0, 600),
+                         graph_top_right=(800, 0),
                          key="graph",
                          change_submits=True,
                          drag_submits=True
@@ -55,7 +57,7 @@ image_holder= [sg.Graph( canvas_size=(640, 480),
 
 layout = [[sg.Text('Colony Picker', size=(40, 1), justification='center', font='Helvetica 20')],
           camera_control,
-          jogger_layout +  image_holder #[sg.Image(filename='', key='image')]
+          image_holder #[sg.Image(filename='', key='image')]
           ]
           #[sg.TabGroup( [sg.Tab('Jogger',tab1_layout)],[sg.Tab('Calibration',tab2_layout)])]]
 
@@ -71,6 +73,7 @@ class mainWindow():
 
         self.state = {
             'record_btn': 0,
+            'picture_btn':0,
             'stop_btn': 0,
             'exit_btn': 0,
             'graph_click_release': 0

@@ -2,16 +2,33 @@ import cv2
 import numpy as np
 from copy import deepcopy
 
+offsetY=240
+offsetX=180
+width=800
+height=600
+
 class Camera():
-    def __init__(self,source=0):
+    def __init__(self,source=0,RotateFlag=False):
         self.cap = cv2.VideoCapture(source)
+        self.rotateFlag=RotateFlag
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH,1280)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT,960)
+        self.cap.set(cv2.CAP_PROP_FPS, 15)
 
     def read(self):
         ret,img=self.cap.read()
+        img=img[offsetY:offsetY+height,offsetX:+offsetX+width,:]
+        if self.rotateFlag:
+            img=cv2.rotate(img,rotateCode=1)
+
         if ret:
             return img
         else:
             return None
+    def takePicture(self,filename):
+        img=self.read()
+        cv2.imwrite(filename,img)
+        return 
 
     def stop(self):
         self.cap.release()

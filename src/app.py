@@ -15,8 +15,12 @@ def main():
             return
 
         elif state['record_btn']:
-            camera=videoHandler.Camera()
+            camera=videoHandler.Camera(RotateFlag=True)
             recording = True
+
+        elif state['picture_btn']:
+            if recording:
+                camera.takePicture("picture.jpg")
 
         elif state['stop_btn']:
             if camera:
