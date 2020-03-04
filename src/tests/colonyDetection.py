@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 
@@ -13,14 +13,8 @@ def trackbarCallback(val):
     return val
 
 cv2.namedWindow("win")
-cv2.createTrackbar("th", "win" , 149, 255, trackbarCallback)
+cv2.createTrackbar("th", "win" , 130, 255, trackbarCallback)
 
-
-img=cv2.imread(SOURCE)
-bg=cv2.imread(BACKGROUND_SOURCE)
-
-
-displayImg=img
 
 def getForeground(img,bg):
     
@@ -69,54 +63,91 @@ def circlesDetect(img):
     
     return cImage
 
-def circlesDetectCountours(img):
+def getCircleROI(img,center=(0,0),radius=100):
     
+    mask=np.zeros_like(img)
+    cv2.circle(mask, center,radius, (255,255,255),-1)  #white filled circle
     
-    cImage=deepcopy(img)
-        
-    img=preprocessing(img)
+    img=cv2.bitwise_and(img, mask)
     
+    return img
 
-
+def getCiclesfromContours(img):
+    minContourPoints=6
     contours = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
-
-
-    array = np.empty([1,2])
+    circlesArray = np.empty([1,3],dtype=np.int)
 
     for c in contours:
-        (x,y),r = cv2.minEnclosingCircle(c)
-        center = (int(x),int(y))
-        r = int(r)
-        if r >= 2 and r<=4:
-            cv2.circle(cImage,center,r,(0,255,0),2)
-            newPoint=[int(x),int(y)]
-            array=np.append(array,[[int(x),int(y)]],axis=0) 
+        if len(c) > minContourPoints:
+            (x,y),r = cv2.minEnclosingCircle(c)   
+            center = (int(x),int(y))
+            r = int(r)
             
+            circlesArray=np.append(circlesArray,[[int(x),int(y),int(r)]],axis=0)
     
-    print(array.shape)
+    return circlesArray
+
+def filterCirclesByRadius(circlesArray,minRadius=2,maxRadius=4):
+    circlesArray=circlesArray[(circlesArray[:,2]>=minRadius) & (circlesArray[:,2]<=maxRadius)]
+    return circlesArray
+
+def drawCirclesFromArray(img, circlesArray):
+    
+    cImage=deepcopy(img)
+    
+    for circle in circlesArray:
+            
+        x=circle[0]
+        y=circle[1]
+        r=circle[2]
+        if r>3:
+            circleColor=(255,255,0)
+        else:
+            circleColor=(0,255,0)
+            r=r+1
+        
+        cv2.circle(cImage,(x,y),r,circleColor,1)
+        # ~ cv2.circle(cImage,center,r+2,(0,0,255),1)
+        # ~ print(center,r,cv2.contourArea(c))
+        # ~ cv2.imshow("win",cImage)
+        # ~ cv2.waitKey()
+
     return cImage
-
-L_BUTTON_DOWN=False
-R_BUTTON_DOWN=False
-
-def click_and_change(event, x, y, flags, param):
     
-    global L_BUTTON_DOWN, R_BUTTON_DOWN
-    
-    if event == cv2.EVENT_LBUTTONDOWN:
-        L_BUTTON_DOWN=True
-        
-    elif event == cv2.EVENT_LBUTTONUP:
-        L_BUTTON_DOWN=False
-        
-    if event == cv2.EVENT_RBUTTONDOWN:
-        R_BUTTON_DOWN=True
-        
-    elif event == cv2.EVENT_RBUTTONUP:
-        R_BUTTON_DOWN=False
-        
-cv2.setMouseCallback("win", click_and_change)
+"""Circle detection from contours
+1.- Does the contour have more than 6 points?  Less than 6 points it is probably not a circle
+2.- Convert contour into circle, by finding the center and radius of an circle that circunscribes the contour
+3.- Filter circles with a radius outside the range of interest
+4.- Keep isolated circle. An isolated circle means that there is no artifact (circle or non circle) in an extended radius 
+    of a few pixels.   (Artifact detection in the binary image and linked to the intensity threshold filter)
+"""
 
+def circlesDetectCountours(img,minRadius=2,maxRadius=3):
+    
+
+    circlesArray=getCiclesfromContours(img)
+    print("Total number circles detected: ", circlesArray.shape)
+    smallCirclesArray=filterCirclesByRadius(circlesArray,minRadius=2,maxRadius=3) 
+    print("Circles with radius between 2 and 3: ",smallCirclesArray.shape)
+    blobsArray=filterCirclesByRadius(circlesArray,minRadius=4,maxRadius=15) 
+    print("Blobs detected as circles  with radius between 4 and 15: ",blobsArray.shape)
+    
+    return smallCirclesArray
+    
+    # ~ input()
+    
+    
+   
+                
+                # ~ if center not in array:
+                    # ~ array+=[center]
+                # ~ array=np.append(array,[[int(x),int(y)]],axis=0) 
+                # ~ if newPoint not in array:
+                    # ~ array+=[[int(x),int(y)]]
+    # ~ print(len(array),array)
+    
+    # ~ print(lineContours) 
+    # ~ return cImage
 
 def main():
     
@@ -124,15 +155,18 @@ def main():
     toggle=3
     
 
+    img=cv2.imread(SOURCE)
+    bg=cv2.imread(BACKGROUND_SOURCE)
+    diff=getForeground(img,bg)
+
+    diff=getCircleROI(diff,center= (399, 305),radius=235)
+    
     while True:
         
-        diff=getForeground(img,bg)
-    
         img2=preprocessing(diff)
-
-        img_circles= circlesDetectCountours(diff)
-
-
+        circlesArray= circlesDetectCountours(img2,minRadius=2,maxRadius=20)
+        img_circles=drawCirclesFromArray(img,circlesArray)
+        
         if c==ord('1') or toggle==1:
             toggle=1
             result=img2
@@ -145,7 +179,10 @@ def main():
             toggle=3
             result=img
         
-    
+        if c==ord('4') or toggle==4:
+            toggle=4
+            result=bg
+            
         cv2.imshow("win",result)
         c=cv2.waitKey(1)
         
