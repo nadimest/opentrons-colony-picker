@@ -6,7 +6,7 @@ import cv2
 from copy import deepcopy
 import numpy as np
 
-SOURCE="colonies_test.jpg"
+SOURCE="picture.jpg"
 BACKGROUND_SOURCE="emptyplate.jpg"
 
 def trackbarCallback(val):

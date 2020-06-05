@@ -47,7 +47,7 @@ jogger_layout = [sg.Column([[sg.Text('Step [mm]',justification='left')],
                            element_justification ='center')
                  ]
 
-image_holder= [sg.Graph( canvas_size=(800, 600),
+image_holder= [sg.Graph( canvas_size=(1920, 1080),
                          graph_bottom_left=(0, 600),
                          graph_top_right=(800, 0),
                          key="graph",

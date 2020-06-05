@@ -26,7 +26,7 @@ def main():
             if camera:
                 camera.stop()
             recording = False
-            window.updateImage(videoHandler.blankImage(640,480,0))
+            window.updateImage(videoHandler.blankImage(1920,1080,0))
 
         elif state['graph_click_release']:
             point= window.getGraphPixel()
