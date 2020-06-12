@@ -1,0 +1,16 @@
+{
+    "CHOSEN_SLOT":6,
+    "SCALE":0.147,
+    "SLOTS": {
+        "6":{
+            "front_left_screw_px" : [31, 578],
+            "rear_left_screw_px" : [31, 70],
+            "front_right_screw_px" : [828, 578],
+            "rear_right_screw_px" : [828, 70],
+            "front_left_screw_mm" : [269.5, 97],
+            "rear_left_screw_mm" : [270, 171],
+            "front_right_screw_mm" : [387, 96],
+            "rear_right_screw_mm" : [387, 171]
+        }
+    }
+}

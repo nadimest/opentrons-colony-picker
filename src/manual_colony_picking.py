@@ -1,29 +1,31 @@
 #!/usr/bin/env python3
 
-from lib.coordinatesCalibration import *
 import subprocess
+
+from lib.coordinatesManagement import CoordinatesManager
+from lib.imageHandling import ImageHandler
+
+coordinates=CoordinatesManager(calibration_filename="calib/calibration.json")
 
 def main():
 
     fetchImage=subprocess.run("./server_scripts/fetchPicturefromServer.sh")
 
-    global img
-    img = cv2.imread("data/colonies.jpg")
+    image=ImageHandler("data/colonies.jpg",coordinates)
 
     while True:
-        overlay=overlayCircles(img,colonies.getCoordinates())
-        cv2.imshow("image", overlay)
+        image.showImage(circles=coordinates.getPoints())
+        c=image.getPressedKey()
 
-        c=cv2.waitKey(10)
         if c==ord('q'):
             break
 
         if c==ord('s'):
-            coord_transformed = [transformCoordinates(item) for item in colonies.getCoordinates()]
-            writeCoordinatesFile(coord_transformed,filename="data/coordinates.json")
-            cv2.imwrite("data/colonies_processed.jpg",overlay)
+            coordinates.writeCoordinatesFile(filename="data/coordinates.json")
 
-            for coord in coord_transformed:
+            image.saveImage("data/colonies_processed.jpg")
+
+            for coord in coordinates.coord_transformed:
                 print(coord)
 
             fetchImage=subprocess.run("./server_scripts/pushColoniesToServer.sh")
