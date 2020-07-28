@@ -9,6 +9,7 @@ coordinates=CoordinatesManager(calibration_filename="calib/calibration.json")
 
 def main():
 
+    # takeImage=subprocess.run("./server_scripts/moveAndTakePicture.sh")
     fetchImage=subprocess.run("./server_scripts/fetchPicturefromServer.sh")
 
     image=ImageHandler("data/colonies.jpg",coordinates)
