@@ -5,32 +5,30 @@
 
 import requests,json
 
-from imageHandling import ImageHandler
+from lib.imageHandling import ImageHandler
+from lib.coordinatesManagement import CoordinatesManager
+coordinates=CoordinatesManager(calibration_filename="calib/calibration.json")
 
-def runColonies(coordinates):
-	
-	well_idx=0
-	#instr.reset_tipracks()
-	for coord in coordinates:
-		
-		coord=coordinates[well_idx]
-		print(coord)
-		
-		try:
-			instr.pick_up_tip()
-		except:
-			print("Cant pick up new tips (Is there one attached?)")
-		
-		move_to_point(coord)
-		instr.move_to(plate.wells()[well_idx].bottom(3))
+def imageProcessing(img_filename):
+	global coordinates
 
-		try:
-			instr.drop_tip()
-		except:
-			print("Unable to drop tip (Is there one attached?)")
+	img_window = ImageHandler(img_filename,coordinates)
+	while True:
+		img_window.showImage(circles=coordinates.getPoints())
+		c=img_window.getPressedKey()
+		if c == ord('q'):
+			img_window.quit()
+			break
 
-		
-		well_idx=well_idx+1
+		if c == ord('s'):
+			coordinates.writeCoordinatesFile(filename="data/coordinates.json")
+
+			img_window.saveImage("images/colonies_processed.jpg")
+
+			for coord in coordinates.coord_transformed:
+				print(coord)
+		continue
+
 
 def main(args):
 	
@@ -38,19 +36,16 @@ def main(args):
 		
 		cmd=input()
 		
-		if cmd=="q":
+		if cmd=="quit":
 			break
 			
-		if cmd=="/openImage":
+		if cmd=="process":
 		
 			r = requests.get('http://192.168.200.63:5000/getImageFilename')
+			filename=r.text
 
-			imageHandler=ImageHandler()
+			imageProcessing(filename)
 
-			showImage(r.text)
-			
-			continue
-			
 		jsonData = json.dumps({'cmd':cmd})
 		r = requests.post('http://192.168.200.63:5000/addCommand', json=jsonData)
 	

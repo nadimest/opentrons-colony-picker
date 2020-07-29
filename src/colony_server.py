@@ -46,7 +46,6 @@ def addCommand():
 	
 	content=request.json
 	cmd=json.loads(content)
-	print(cmd['cmd'])
 	
 	commands.append(cmd['cmd'])
 	
